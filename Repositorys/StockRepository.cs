@@ -75,12 +75,7 @@ namespace api.Repositorys
 
         public async Task<bool> StockExist(int id)
         {
-            var isExist = await _context.Stock.FirstOrDefaultAsync(stk => stk.Id == id);
-            if (isExist == null)
-            {
-                return false;
-            }
-            return true;
+            return await _context.Stock.AnyAsync(s => s.Id == id);
         }
     }
 }

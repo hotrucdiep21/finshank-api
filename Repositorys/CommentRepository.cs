@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
+using api.Dtos.Comment;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,10 @@ namespace api.Repositorys
             _context = context;
         }
 
+        public async Task<bool> CommentExistAsync(int id)
+        {
+            return await _context.Comment.AnyAsync(cmt => cmt.Id == id);
+        }
 
         public async Task<Comment> CreateCommentAsync(Comment comment)
         {
@@ -25,6 +30,17 @@ namespace api.Repositorys
             return comment;
         }
 
+        public async Task<Comment?> DeleteAsync(int id)
+        {
+            var commentModel = await _context.Comment.FirstOrDefaultAsync(cmt => cmt.Id == id);
+            if (commentModel == null)
+            {
+                return null;
+            }
+            _context.Comment.Remove(commentModel);
+            await _context.SaveChangesAsync();
+            return commentModel;
+        }
 
         public async Task<List<Comment>> GetAllAsync()
         {
@@ -36,6 +52,21 @@ namespace api.Repositorys
         {
             var comment = await _context.Comment.FirstOrDefaultAsync(cmt => cmt.Id == id);
             return comment;
+        }
+
+        public async Task<Comment?> UpdateCommentAsync(int id, UpdateCommentRequestDto updateComment)
+        {
+            var existComment = await _context.Comment.FirstOrDefaultAsync(cmt => cmt.Id == id);
+            if (existComment == null)
+            {
+                return null;
+            }
+            existComment.Title = updateComment.Title;
+            existComment.Content = updateComment.Content;
+
+            await _context.SaveChangesAsync();
+            return existComment;
+
         }
     }
 }
