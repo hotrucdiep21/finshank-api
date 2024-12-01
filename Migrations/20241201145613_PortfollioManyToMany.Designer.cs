@@ -12,8 +12,8 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20241128093223_SeedRole")]
-    partial class SeedRole
+    [Migration("20241201145613_PortfollioManyToMany")]
+    partial class PortfollioManyToMany
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,13 +54,13 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "56dd8ead-895c-4a03-ab6b-078563fbb319",
+                            Id = "09bc5f0b-f6a2-4c8d-9137-d16e4ddae36a",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "cac044a2-f301-4b87-b643-ce77ab67e5fc",
+                            Id = "c1fe3452-8996-4237-82cd-276859a32e97",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -197,9 +197,6 @@ namespace api.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("MyProperty")
-                        .HasColumnType("int");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -267,6 +264,21 @@ namespace api.Migrations
                     b.HasIndex("StockId");
 
                     b.ToTable("Comment");
+                });
+
+            modelBuilder.Entity("api.Models.Portfollio", b =>
+                {
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("StockId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AppUserId", "StockId");
+
+                    b.HasIndex("StockId");
+
+                    b.ToTable("Portfollio");
                 });
 
             modelBuilder.Entity("api.Models.Stock", b =>
@@ -363,9 +375,35 @@ namespace api.Migrations
                     b.Navigation("Stock");
                 });
 
+            modelBuilder.Entity("api.Models.Portfollio", b =>
+                {
+                    b.HasOne("api.Models.AppUser", "AppUser")
+                        .WithMany("Portfollios")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("api.Models.Stock", "Stock")
+                        .WithMany("Portfollios")
+                        .HasForeignKey("StockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("api.Models.AppUser", b =>
+                {
+                    b.Navigation("Portfollios");
+                });
+
             modelBuilder.Entity("api.Models.Stock", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Portfollios");
                 });
 #pragma warning restore 612, 618
         }
